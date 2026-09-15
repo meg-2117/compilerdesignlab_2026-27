@@ -42,12 +42,20 @@ class TinyCStrLexer(Lexer):
         'int': 'INT',
         'print': 'PRINT',
         # TODO(week-5, stage-2a): add 'double': 'DOUBLE'
+        'double': 'DOUBLE',
         # TODO(week-5, stage-2b): add 'char': 'CHAR', 'string': 'STRING'
-    }
+        'char': 'CHAR',
+        'string': 'STRING'
+     }
 
     @_(r'[a-zA-Z_][a-zA-Z0-9_]*')
     def ID(self, t):
         t.type = self.keywords.get(t.value, 'ID')
+        return t
+
+    @_(r'\d+\.\d+')
+    def REAL_CONST(self, t):
+        t.value = float(t.value)
         return t
 
     @_(r'\d+')
@@ -88,12 +96,22 @@ class TinyCStrLexer(Lexer):
     # TODO(week-5, stage-2b): CHAR_CONST -- a single character in single
     # quotes, e.g. 'x'. Function-style rule, strip the surrounding
     # quotes before returning (t.value = t.value[1:-1]).
+
+    @_(r'(".")|(\'.\')')
+    def CHAR_CONST(self,t):
+        t.value=t.value[1:-1]
+        return t
     #
     # TODO(week-5, stage-2b): STRING_CONST -- zero or more non-quote
     # characters in double quotes, e.g. "hello". Function-style rule,
     # strip the surrounding quotes the same way. (No escape-sequence
     # handling needed for Level 2 -- \" inside a string is out of scope.)
     #
+
+    @_(r'(".*")|(\'.*\')')
+    def STRING_CONST(SELF,t):
+        t.value=t.value[1:-1]
+        return t
     # TODO(week-5, stage-2b): six relational operators as plain string
     # attributes: LT (<), GT (>), LE (<=), GE (>=), EQ (==), NE (!=).
     # See docs/sly_help2.md #2 for why you do NOT need to
@@ -101,11 +119,19 @@ class TinyCStrLexer(Lexer):
     # ordering already handles it correctly as long as these stay plain
     # string attributes (not function rules).
 
+    LT=r'<'
+    GT=r'>'
+    LE=r'<='
+    GE=r'>='
+    EQ=r'=='
+    NE=r'!='
     # ------------------------------------------------------------------
     # LEVEL 2, Stage 2c -- ternary operator tokens
     # ------------------------------------------------------------------
     # TODO(week-5, stage-2c): QUESTION (?) and COLON (:) as plain string
     # attributes. That's the entire lexer change for Stage 2c 
+    QUESTION=r'\?'
+    COLON=r':'
 
     def __init__(self, error_sink=None):
         self.error_sink = error_sink if error_sink is not None else sys.stdout
